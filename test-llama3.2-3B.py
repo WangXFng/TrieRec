@@ -27,8 +27,6 @@ if __name__ == "__main__":
     args.base_model = "meta-llama/Llama-3.2-1B-Instruct"
     # args.base_model = "meta-llama/Llama-3.2-3B-Instruct"
     # args.base_model = "huggyllama/llama-7b"
-    # args.ckpt_path = './ckpt/Instruments-8bit-3B-4Epoch-EmbToken/'
-    # args.ckpt_path = './ckpt/Instruments-8bit-1B-4Epoch-Incre/'
     args.ckpt_path = './ckpt/Instruments-8bit-1B-4Epoch/'
     args.dataset = 'Instruments'
     args.data_path = "./data"
@@ -78,17 +76,6 @@ if __name__ == "__main__":
     test_data = load_test_dataset(args)
     all_items = test_data.get_all_items()
 
-    ## ===================== ID Pattern =====================
-    encoded_sequences = []
-    for sequence in all_items:
-        token_ids = tokenizer.encode(sequence)
-        encoded_sequences.append(token_ids[1:])
-
-    trie = TrieMachine(tokenizer.eos_token_id, encoded_sequences).getRoot()
-
-    # customized LogitsProcessor
-    logits_processor = LogitsProcessorList([TrieLogitsProcessor(trie, tokenizer, args.num_beams, last_token=':')])
-    #
     # ## ===================== ID Pattern =====================
     # prefix_allowed_tokens = test_data.get_prefix_allowed_tokens_fn(tokenizer)
 
@@ -124,7 +111,6 @@ if __name__ == "__main__":
                             output_scores=True,
                             return_dict_in_generate=True,
                             early_stopping=True,
-                            # logits_processor = logits_processor,
                             pad_token_id=tokenizer.pad_token_id,  # 显式设置 pad_token_id
                             eos_token_id=tokenizer.eos_token_id   # 如果需要也可以显式设置 eos_token_id
                         )
